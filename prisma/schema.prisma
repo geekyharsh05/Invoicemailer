@@ -9,13 +9,16 @@ datasource db {
 
 model User {
   id            String          @id @default(cuid())
-  name          String?
+  firstName     String?
+  lastName      String?
+  address       String?
   email         String          @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   Authenticator Authenticator[]
+  invoices      Invoice[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -73,4 +76,38 @@ model Authenticator {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
+}
+
+model Invoice {
+  id String @id @default(uuid())
+
+  invoiceName   String
+  total         Float
+  status        InvoiceStatus
+  date          DateTime
+  dueDate       Int
+  fromName      String
+  fromEmail     String
+  fromAddress   String
+  clientName    String
+  clientEmail   String
+  clientAddress String
+  currency      String
+  invoiceNumber Int
+  note          String?
+
+  invoiceItemDescription String
+  invoiceItemQuantity    Int
+  invoiceItemRate        Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
+}
+
+enum InvoiceStatus {
+  PAID
+  PENDING
 }
