@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { requireUser } from "../utils/hooks"
+import { requireUser } from "@/hooks/require-user"
 import Logo from "../../public/logo.png"
 import Image from "next/image"
 import DashboardLinks from "../components/DashboardLinks"
@@ -7,12 +7,30 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { MenuIcon, Users2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { sign } from "crypto"
 import { signOut } from "../utils/auth"
-import { LayoutDashboard, FileText, LogOut } from "lucide-react"
+import prisma from "../utils/db"
+import { redirect } from "next/navigation"
 
+async function getUser(userId: string) {
+    const data = await prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        select: {
+            firstName: true,
+            lastName: true,
+            address: true,
+        },
+    })
+
+    if (!data?.firstName || !data?.lastName || !data?.address) {
+        return redirect("/onboarding")
+    }
+
+}
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
     const session = await requireUser()
+    const data = await getUser(session.user?.id as string)
 
     return (
         <>
