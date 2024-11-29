@@ -11,7 +11,7 @@ export default async function Login() {
     if (session?.user) {
         return redirect("/dashboard")
     }
-    
+
     return (
         <>
             <div className="flex h-screen w-full items-center justify-center px-4">
@@ -30,7 +30,7 @@ export default async function Login() {
                                     <Label htmlFor="email">Email</Label>
                                     <Input id="email" name="email" type="email" required placeholder="harsh@example.com" />
                                 </div>
-                                <SubmitButton />
+                                <SubmitButton text="Login" />
                             </div>
                         </form>
                     </CardContent>
