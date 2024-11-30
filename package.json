@@ -5,7 +5,7 @@
   "author": "Harsh Vardhan Pandey",
   "repository": "https://github.com/geekyharsh05/invoicemailer",
   "scripts": {
-    "postinstall": "pnpm dlx prisma generate",
+    "postinstall": "prisma generate",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
