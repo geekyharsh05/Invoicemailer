@@ -93,7 +93,7 @@ export async function createInvoice(prevState:any, formData: FormData) {
             amount: submission.value.total,
             currency: submission.value.currency as any,
         }),
-        invoiceLink: `${process.env.NEXT_PUBLIC_BASE_URL}/api/invoice/${data.id}`
+        invoiceLink: `${process.env.NEXT_PUBLIC_BASE_URL!}/api/invoice/${data.id}`
         }
         })
 
@@ -163,7 +163,7 @@ export async function editInvoice(prevState: any, formData: FormData) {
             amount: submission.value.total,
             currency: submission.value.currency as any,
         }),
-        invoiceLink: `${process.env.NEXT_PUBLIC_BASE_URL}/api/invoice/${data.id}`
+        invoiceLink: `${process.env.NEXT_PUBLIC_BASE_URL!}/api/invoice/${data.id}`
         }
         })
   
