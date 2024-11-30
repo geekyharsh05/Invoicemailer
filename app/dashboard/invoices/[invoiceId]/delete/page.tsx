@@ -7,6 +7,8 @@ import WarningGIF from "@/public/warning-gif.gif"
 import Link from "next/link"
 import { buttonVariants } from "@/components/ui/button"
 import SubmitButton from "@/app/components/SubmitButtons"
+import { deleteInvoice } from "@/lib/actions/actions"
+import { toast } from "sonner"
 
 async function Authorize(invoiceId: string, userId: string) {
     const data = await prisma.invoice.findUnique({
@@ -46,8 +48,11 @@ export default async function DeleteInvoiceRoute({ params }: { params: InvoiceId
                     })}>
                         Cancel
                     </Link>
-                    <form>
-                        <SubmitButton text="Delete Invoice" />
+                    <form action={async () => {
+                        "use server"
+                        await deleteInvoice(invoiceId)
+                    }} >
+                        <SubmitButton text="Delete Invoice" variant={"destructive"} />
                     </form>
                 </CardFooter>
             </Card>
