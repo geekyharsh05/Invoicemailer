@@ -22,6 +22,6 @@ export const invoiceSchema = z.object({
   invoiceNumber: z.number().min(1, "Minimum invoice number of 1"),
   note: z.string().optional(),
   invoiceItemDescription: z.string().min(1, "Description is required"),
-  invoiceItemQuantity: z.number().min(1, "Qunatity min 1"),
+  invoiceItemQuantity: z.number().min(1, "Quantity min 1"),
   invoiceItemRate: z.number().min(1, "Rate min 1"),
 });
