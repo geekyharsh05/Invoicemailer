@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Logo from "@/public/logo.png";
 import { RainbowButton } from "@/components/ui/rainbow-button";
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   return (
@@ -13,7 +14,7 @@ export default function Navbar() {
         </h3>
       </Link>
       <Link href="/login">
-        <RainbowButton className="bg-blue-500">Get Started</RainbowButton>
+        <Button className="bg-blue-500 hover:bg-blue-600" size={"lg"}>Get Started</Button>
       </Link>
     </div>
   );
