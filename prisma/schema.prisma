@@ -17,6 +17,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  // Optional for WebAuthn support
   Authenticator Authenticator[]
   invoices      Invoice[]
 
@@ -63,6 +64,7 @@ model VerificationToken {
   @@id([identifier, token])
 }
 
+// Optional for WebAuthn support
 model Authenticator {
   credentialID         String  @unique
   userId               String
@@ -82,7 +84,7 @@ model Invoice {
   id String @id @default(uuid())
 
   invoiceName   String
-  total         Float
+  total         Int
   status        InvoiceStatus
   date          DateTime
   dueDate       Int
