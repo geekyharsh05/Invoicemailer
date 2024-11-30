@@ -1,69 +1,102 @@
 "use client";
+
+import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { CheckCircle, DownloadCloud, Mail, MoreHorizontal, PencilIcon, Trash } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { CheckCircle, Download, Edit, Mail, MoreHorizontal, Trash2 } from 'lucide-react';
 import Link from "next/link";
-import { useCallback } from "react";
 import { toast } from "sonner";
 
-interface iAppProps {
+interface InvoiceActionsProps {
     id: string;
     status: string;
 }
 
-export default function InvoiceActions({ id, status }: iAppProps) {
-    const handleSendReminderEmail = useCallback(async () => {
+export default function InvoiceActions({ id, status }: InvoiceActionsProps) {
+    const handleSendReminderEmail = React.useCallback(async () => {
         toast.promise(fetch(`/api/email/${id}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
         }), {
-            loading: "Sending Reminder Email...",
-            success: "Reminder Email Sent Successfully!",
-            error: "An error occurred while sending the reminder email.",
+            loading: "Sending reminder...",
+            success: "Reminder sent successfully!",
+            error: "Failed to send reminder.",
         });
     }, [id]);
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="secondary">
-                    <MoreHorizontal className="size-4" />
+                <Button
+                    size="icon"
+                    variant="ghost"
+                    className="hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors duration-300 rounded-full"
+                >
+                    <MoreHorizontal className="h-5 w-5 text-primary" />
+                    <span className="sr-only">Open menu</span>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+                align="end"
+                className="w-56 p-1 rounded-xl shadow-lg animate-in zoom-in-95 duration-100"
+            >
                 <DropdownMenuItem asChild>
-                    <Link href={`/dashboard/invoices/${id}`}>
-                        <PencilIcon className="mr-2 size-4" />
-                        Edit Invoice
+                    <Link
+                        href={`/dashboard/invoices/${id}`}
+                        className="flex items-center px-3 py-2 hover:bg-primary/10 dark:hover:bg-primary/20 rounded-lg transition-colors duration-200 group"
+                    >
+                        <Edit className="mr-3 h-5 w-5 text-primary group-hover:text-primary/80 transition-colors duration-200" />
+                        <span className="font-medium">Edit Invoice</span>
                     </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                    <Link href={`/api/invoice/${id}`} target="_blank">
-                        <DownloadCloud className="mr-2 size-4" />
-                        Download Invoice
+                    <Link
+                        href={`/api/invoice/${id}`}
+                        target="_blank"
+                        className="flex items-center px-3 py-2 hover:bg-primary/10 dark:hover:bg-primary/20 rounded-lg transition-colors duration-200 group"
+                    >
+                        <Download className="mr-3 h-5 w-5 text-primary group-hover:text-primary/80 transition-colors duration-200" />
+                        <span className="font-medium">Download PDF</span>
                     </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSendReminderEmail}>
-                    <Mail className="mr-2 size-4" />
-                    Send Reminder Email
+                <DropdownMenuItem
+                    onSelect={handleSendReminderEmail}
+                    className="flex items-center px-3 py-2 hover:bg-primary/10 dark:hover:bg-primary/20 rounded-lg transition-colors duration-200 group cursor-pointer"
+                >
+                    <Mail className="mr-3 h-5 w-5 text-primary group-hover:text-primary/80 transition-colors duration-200" />
+                    <span className="font-medium">Send Reminder Email</span>
                 </DropdownMenuItem>
                 {status !== "PAID" && (
                     <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/invoices/${id}/paid`}>
-                            <CheckCircle className="mr-2 size-4" />
-                            Mark as paid
+                        <Link
+                            href={`/dashboard/invoices/${id}/paid`}
+                            className="flex items-center px-3 py-2 hover:bg-primary/10 dark:hover:bg-primary/20 rounded-lg transition-colors duration-200 group"
+                        >
+                            <CheckCircle className="mr-3 h-5 w-5 text-primary group-hover:text-primary/80 transition-colors duration-200" />
+                            <span className="font-medium">Mark as Paid</span>
                         </Link>
                     </DropdownMenuItem>
                 )}
+                <DropdownMenuSeparator className="my-1 opacity-50" />
                 <DropdownMenuItem asChild>
-                    <Link href={`/dashboard/invoices/${id}/delete`}>
-                        <Trash className="mr-2 size-4" />
-                        Delete Invoice
+                    <Link
+                        href={`/dashboard/invoices/${id}/delete`}
+                        className="flex items-center px-3 py-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors duration-200 group"
+                    >
+                        <Trash2 className="mr-3 h-5 w-5 text-red-500 group-hover:text-red-600 transition-colors duration-200" />
+                        <span className="font-medium text-red-500 group-hover:text-red-600">Delete Invoice</span>
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     )
 }
+
