@@ -1,12 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import InvoiceActions from "./InvoiceActions";
 import prisma from "../utils/db";
 import { requireUser } from "@/hooks/require-user";
 import { formatCurrency } from "@/hooks/format-currency";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import { motion } from "framer-motion";
 
 async function fetchInvoices(userId: string) {
     const data = await prisma.invoice.findMany({
@@ -20,7 +18,7 @@ async function fetchInvoices(userId: string) {
             status: true,
             total: true,
             currency: true,
-            createdAt: true,
+            date: true,
         },
         orderBy: {
             createdAt: "desc",
@@ -58,8 +56,8 @@ async function InvoiceList() {
                             <Badge>{invoice.status}</Badge>
                         </TableCell>
                         <TableCell>{new Intl.DateTimeFormat("en-US", {
-                            dateStyle: "long",
-                        }).format(invoice.createdAt)}
+                            dateStyle: "medium",
+                        }).format(invoice.date)}
                         </TableCell>
                         <TableCell className="text-right"><InvoiceActions id={invoice.id} status={invoice.status} /></TableCell>
                     </TableRow>
