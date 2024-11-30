@@ -8,6 +8,7 @@ import { onBoardUser } from "@/lib/actions/actions";
 import { useForm } from "@conform-to/react"
 import { parseWithZod } from "@conform-to/zod";
 import { onboardingSchema } from "../utils/zod-schemas";
+import ErrorMessage from "../components/ErrorMessage";
 
 export default function Onboarding() {
     const [lastResult, action] = useActionState(onBoardUser, undefined);
@@ -45,7 +46,7 @@ export default function Onboarding() {
                                     type="text"
                                     placeholder="Graeme"
                                 />
-                                <p className="text-red-500 text-sm">{fields.firstName.errors}</p>
+                                <ErrorMessage error={fields.firstName.errors} />
                             </div>
                             <div className="grid gap-2">
                                 <Label>Last Name</Label>
@@ -56,7 +57,7 @@ export default function Onboarding() {
                                     type="text"
                                     placeholder="Smith"
                                 />
-                                <p className="text-red-500 text-sm">{fields.lastName.errors}</p>
+                                <ErrorMessage error={fields.lastName.errors} />
                             </div>
                         </div>
                         <div className="grid gap-2">
@@ -68,7 +69,7 @@ export default function Onboarding() {
                                 type="text"
                                 placeholder="The Wanderers, Johannesburg"
                             />
-                            <p className="text-red-500 text-sm">{fields.address.errors}</p>
+                            <ErrorMessage error={fields.address.errors} />
                         </div>
                         <SubmitButton text="Finish Onboarding" />
                     </form>
