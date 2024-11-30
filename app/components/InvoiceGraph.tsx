@@ -14,17 +14,17 @@ async function getInvoices(userId: string) {
             },
         },
         select: {
-            createdAt: true,
             total: true,
+            date: true
         },
         orderBy: {
             createdAt: "asc",
         },
-    })
+    });
 
     const aggregatedData = rawData.reduce(
         (acc: { [key: string]: number }, curr) => {
-            const date = new Date(curr.createdAt).toLocaleDateString("en-US", {
+            const date = new Date(curr.date).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
             });
@@ -51,8 +51,7 @@ async function getInvoices(userId: string) {
     return transformedData;
 }
 
-
-async function InvoiceGraph() {
+export default async function InvoiceGraph() {
     const session = await requireUser();
     const data = await getInvoices(session.user?.id as string);
 
@@ -70,5 +69,3 @@ async function InvoiceGraph() {
         </Card>
     );
 }
-
-export default InvoiceGraph
