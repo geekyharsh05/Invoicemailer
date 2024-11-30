@@ -13,6 +13,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+
 export const metadata: Metadata = {
   title: "Invoice Mailer",
   description: "Invoice Mailer is a simple invoice mailer app built with Next.js",
