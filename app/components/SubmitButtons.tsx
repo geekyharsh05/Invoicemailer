@@ -15,7 +15,7 @@ function SubmitButton({ text }: iAppProps) {
         <>
             {pending ? (
                 <Button disabled={pending} className="w-full">
-                    <Loader2 className="size-4 mr-2 animate-spin" />Submitting
+                    <Loader2 className="size-4 mr-2 animate-spin" />Please Wait
                 </Button>
             ) : (
                 <Button type="submit" className="w-full">
