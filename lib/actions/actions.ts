@@ -4,7 +4,7 @@ import { requireUser } from "@/hooks/require-user";
 import prisma from "@/app/utils/db";
 import { invoiceSchema, onboardingSchema } from "@/app/utils/zod-schemas";
 import { parseWithZod } from "@conform-to/zod"
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import emailClient from "@/app/utils/email-client";
 import { formatCurrency } from "@/hooks/format-currency";
 
@@ -179,10 +179,6 @@ export async function deleteInvoice(invoiceId: string) {
         id: invoiceId,
       },
     });
-
-    if (!data) {
-      return notFound();
-    }
   
     return redirect("/dashboard/invoices");
 }
@@ -199,10 +195,6 @@ export async function markAsPaidAction(invoiceId: string) {
         status: "PAID",
       },
     });
-
-    if (!data) {
-      return notFound();
-    }
   
     return redirect("/dashboard/invoices");
 }
