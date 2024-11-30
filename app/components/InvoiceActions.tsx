@@ -8,9 +8,10 @@ import { toast } from "sonner";
 
 interface iAppProps {
     id: string;
+    status: string;
 }
 
-export default function InvoiceActions({ id }: iAppProps) {
+export default function InvoiceActions({ id, status }: iAppProps) {
     const handleSendReminderEmail = useCallback(async () => {
         toast.promise(fetch(`/api/email/${id}`, {
             method: "POST",
@@ -48,12 +49,14 @@ export default function InvoiceActions({ id }: iAppProps) {
                     <Mail className="mr-2 size-4" />
                     Send Reminder Email
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                    <Link href="">
-                        <CheckCircle className="mr-2 size-4" />
-                        Mark as paid
-                    </Link>
-                </DropdownMenuItem>
+                {status !== "PAID" && (
+                    <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/invoices/${id}/paid`}>
+                            <CheckCircle className="mr-2 size-4" />
+                            Mark as paid
+                        </Link>
+                    </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                     <Link href={`/dashboard/invoices/${id}/delete`}>
                         <Trash className="mr-2 size-4" />
