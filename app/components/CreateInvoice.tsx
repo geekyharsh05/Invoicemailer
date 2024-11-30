@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Badge } from "@/components/ui/badge";
@@ -10,165 +11,315 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { CalendarIcon } from "lucide-react";
-import { useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import SubmitButton from "./SubmitButtons";
+import { createInvoice } from "@/lib/actions/actions";
+import { useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
+import { invoiceSchema } from "../utils/zod-schemas";
+import ErrorMessage from "./ErrorMessage";
+import { formatCurrency } from "@/hooks/format-currency";
 
-export function CreateInvoice() {
+interface iAppProps {
+    firstName: string;
+    lastName: string;
+    address: string;
+    email: string;
+}
+
+export function CreateInvoice({ firstName, lastName, address, email }: iAppProps) {
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [rate, setRate] = useState("")
+    const [quantity, setQuantity] = useState("")
+    const [currency, setCurrency] = useState("INR");
+    const calculateTotal = useMemo(
+        () => (Number(quantity) || 0) * (Number(rate) || 0),
+        [quantity, rate]
+    );
+
+    const [lastResult, action] = useActionState(createInvoice, undefined)
+    const [form, fields] = useForm({
+        lastResult,
+
+        onValidate({ formData }) {
+            return parseWithZod(formData, {
+                schema: invoiceSchema,
+            })
+        },
+
+        shouldValidate: "onBlur",
+        shouldRevalidate: "onInput"
+    })
 
     return (
         <Card className="w-full max-w-4xl mx-auto">
             <CardContent className="p-6">
-                <div className="flex felx-col gap-1 w-fit">
-                    <div className="flex items-center gap-4">
-                        <Badge variant="secondary" >Draft</Badge>
-                        <Input placeholder="test123" />
-                    </div>
-                </div>
+                <form id={form.id} action={action} onSubmit={form.onSubmit} noValidate>
+                    <input
+                        type="hidden"
+                        name={fields.date.name}
+                        value={selectedDate.toISOString()}
+                    />
+                    <input
+                        type="hidden"
+                        name={fields.total.name}
+                        value={calculateTotal}
+                    />
 
-                <div className="grid md:grid-cols-3 gap-6 mb-6">
-                    <div>
-                        <Label>Invoice No.</Label>
-                        <div className="flex">
-                            <span className="px-3 border border-r-0 rounder-l-md bg-muted flex items-center">#</span>
-                            <Input className="rounded-l-none" placeholder="5" />
+                    <div className="flex flex-col gap-1 w-fit mb-6">
+                        <div className="flex items-center gap-4">
+                            <Badge variant="secondary">Draft</Badge>
+                            <Input
+                                name={fields.invoiceName.name}
+                                key={fields.invoiceName.name}
+                                defaultValue={fields.invoiceName.initialValue}
+                                placeholder="Test 123"
+                            />
                         </div>
+                        <ErrorMessage error={fields.invoiceName.errors} />
                     </div>
 
-                    <div>
-                        <Label>Currency</Label>
-                        <Select defaultValue={"INR"}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select Currency" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value={"USD"}>United States Dollar -- USD</SelectItem>
-                                <SelectItem value={"EUR"}>Euro -- EUR</SelectItem>
-                                <SelectItem value={"GBP"}>Pound Sterling -- GBP</SelectItem>
-                                <SelectItem value={"INR"}>Indian Rupee -- INR</SelectItem>
-                                <SelectItem value={"JPY"}>Japanese Yen -- JPY</SelectItem>
-                                <SelectItem value={"NPR"}>Nepalese Rupee -- NPR</SelectItem>
-                                <SelectItem value={"CAD"}>Canadian Dollar -- CAD</SelectItem>
-                                <SelectItem value={"AUD"}>Australian Dollar -- AUD</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <Label>From</Label>
-                        <div className="space-y-2">
-                            <Input placeholder="Your Name" />
-                            <Input placeholder="Your Email" />
-                            <Input placeholder="Your Address" />
-                        </div>
-                    </div>
-
-                    <div>
-                        <Label>To</Label>
-                        <div className="space-y-2">
-                            <Input placeholder="Client Name" />
-                            <Input placeholder="Client Email" />
-                            <Input placeholder="Client Address" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6 mb-6">
-                    <div>
+                    <div className="grid md:grid-cols-3 gap-6 mb-6">
                         <div>
-                            <Label>Date</Label>
-                        </div>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" className="w-[280px]">
-                                    <CalendarIcon />
-
-                                    {selectedDate ? (
-                                        new Intl.DateTimeFormat("EN-US", {
-                                            dateStyle: "long",
-                                        }).format(selectedDate)
-                                    ) : (
-                                        <span>Pick a Date</span>
-                                    )}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent>
-                                <Calendar
-                                    mode="single"
-                                    selected={selectedDate}
-                                    onSelect={(date) => setSelectedDate(date || new Date())}
-                                    fromDate={new Date()}
+                            <Label>Invoice No.</Label>
+                            <div className="flex">
+                                <span className="px-3 border border-r-0 rounder-l-md bg-muted flex items-center">#</span>
+                                <Input
+                                    name={fields.invoiceNumber.name}
+                                    key={fields.invoiceNumber.name}
+                                    defaultValue={fields.invoiceNumber.initialValue}
+                                    className="rounded-l-none"
+                                    placeholder="5"
                                 />
-                            </PopoverContent>
-                        </Popover>
+                            </div>
+                            <ErrorMessage error={fields.invoiceNumber.errors} />
+                        </div>
+
+                        <div>
+                            <Label>Currency</Label>
+                            <Select defaultValue={currency} onValueChange={(value) => setCurrency(value)} name={fields.currency.name} key={fields.currency.key}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Currency" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {currencies.map((currency) => (
+                                        <SelectItem key={currency.value} value={currency.value}>
+                                            {currency.label}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <ErrorMessage error={fields.currency.errors} />
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <Label>From</Label>
+                            <div className="space-y-2">
+                                <Input
+                                    name={fields.fromName.name}
+                                    key={fields.fromName.key}
+                                    placeholder="Your Name"
+                                    defaultValue={firstName + " " + lastName}
+                                />
+                                <ErrorMessage error={fields.fromName.errors} />
+                                <Input
+                                    name={fields.fromEmail.name}
+                                    key={fields.fromEmail.key}
+                                    placeholder="Your Email"
+                                    defaultValue={email}
+                                />
+                                <ErrorMessage error={fields.fromEmail.errors} />
+                                <Input
+                                    name={fields.fromAddress.name}
+                                    key={fields.fromAddress.key}
+                                    placeholder="Your Address"
+                                    defaultValue={address}
+                                />
+                                <ErrorMessage error={fields.fromAddress.errors} />
+                            </div>
+                        </div>
+
+                        <div>
+                            <Label>To</Label>
+                            <div className="space-y-2">
+                                <Input
+                                    name={fields.clientName.name}
+                                    key={fields.clientName.key}
+                                    placeholder="Client Name"
+                                />
+                                <ErrorMessage error={fields.clientName.errors} />
+                                <Input
+                                    name={fields.clientEmail.name}
+                                    key={fields.clientEmail.key}
+                                    placeholder="Client Email"
+                                />
+                                <ErrorMessage error={fields.clientEmail.errors} />
+                                <Input
+                                    name={fields.clientAddress.name}
+                                    key={fields.clientAddress.key}
+                                    placeholder="Client Address"
+                                />
+                                <ErrorMessage error={fields.clientAddress.errors} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <div>
+                                <Label>Date</Label>
+                            </div>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" className="w-[280px]">
+                                        <CalendarIcon />
+
+                                        {selectedDate ? (
+                                            new Intl.DateTimeFormat("EN-US", {
+                                                dateStyle: "long",
+                                            }).format(selectedDate)
+                                        ) : (
+                                            <span>Pick a Date</span>
+                                        )}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent>
+                                    <Calendar
+                                        mode="single"
+                                        selected={selectedDate}
+                                        onSelect={(date) => setSelectedDate(date || new Date())}
+                                        fromDate={new Date()}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <ErrorMessage error={fields.date.errors} />
+                        </div>
+
+                        <div>
+                            <Label>Due Date</Label>
+                            <Select
+                                name={fields.dueDate.name}
+                                key={fields.dueDate.key}
+                                defaultValue={fields.dueDate.initialValue}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Due Date" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="0">Due on Receipt</SelectItem>
+                                    <SelectItem value="15">Net 15</SelectItem>
+                                    <SelectItem value="30">Net 30</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <ErrorMessage error={fields.dueDate.errors} />
+                        </div>
                     </div>
 
                     <div>
-                        <Label>Due Date</Label>
-                        <Select>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select Due Date" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="0">Due on Receipt</SelectItem>
-                                <SelectItem value="15">Net 15</SelectItem>
-                                <SelectItem value="30">Net 30</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <div className="grid grid-cols-12 gap-4 mb-2 font-medium">
+                            <p className="col-span-6">Description</p>
+                            <p className="col-span-2">Quantity</p>
+                            <p className="col-span-2">Rate</p>
+                            <p className="col-span-2">Amount</p>
+                        </div>
+
+                        <div className="grid grid-cols-12 gap-4 mb-4">
+                            <div className="col-span-6">
+                                <Textarea
+                                    name={fields.invoiceItemDescription.name}
+                                    key={fields.invoiceItemDescription.key}
+                                    defaultValue={fields.invoiceItemDescription.initialValue}
+                                    placeholder="Description"
+                                />
+                                <ErrorMessage error={fields.invoiceItemDescription.errors} />
+                            </div>
+                            <div className="col-span-2">
+                                <Input
+                                    name={fields.invoiceItemQuantity.name}
+                                    key={fields.invoiceItemQuantity.key}
+                                    type="number"
+                                    placeholder="0"
+                                    value={quantity}
+                                    onChange={(e) => setQuantity(e.target.value)}
+                                />
+                                <ErrorMessage error={fields.invoiceItemQuantity.errors} />
+                            </div>
+                            <div className="col-span-2">
+                                <Input
+                                    name={fields.invoiceItemRate.name}
+                                    key={fields.invoiceItemRate.key}
+                                    type="number"
+                                    placeholder="0"
+                                    value={rate}
+                                    onChange={(e) => setRate(e.target.value)}
+                                />
+                                <ErrorMessage error={fields.invoiceItemRate.errors} />
+                            </div>
+                            <div className="col-span-2">
+                                <Input
+                                    value={formatCurrency({
+                                        amount: calculateTotal,
+                                        currency: currency as any,
+                                    })}
+                                    disabled
+                                />
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <div className="grid grid-cols-12 gap-4 mb-2 font-medium">
-                        <p className="col-span-6">Description</p>
-                        <p className="col-span-2">Quantity</p>
-                        <p className="col-span-2">Rate</p>
-                        <p className="col-span-2">Amount</p>
-                    </div>
+                    <div className="flex justify-end">
+                        <div className="w-1/3 ">
+                            <div className="flex justify-between py-2">
+                                <span>Subtotal</span>
+                                <span> {formatCurrency({
+                                    amount: calculateTotal,
+                                    currency: currency as any,
+                                })}
+                                </span>
+                            </div>
 
-                    <div className="grid grid-cols-12 gap-4 mb-4">
-                        <div className="col-span-6">
-                            <Textarea placeholder="Description" />
-                        </div>
-                        <div className="col-span-2">
-                            <Input type="number" placeholder="0" />
-                        </div>
-                        <div className="col-span-2">
-                            <Input type="number" placeholder="0" />
-                        </div>
-                        <div className="col-span-2">
-                            <Input disabled type="number" placeholder="0" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex justify-end">
-                    <div className="w-1/3 ">
-                        <div className="flex justify-between py-2">
-                            <span>Subtotal</span>
-                            <span>₹500</span>
-                        </div>
-
-                        <div className="flex justify-between py-2 border-t">
-                            <span>Total (INR)</span>
-                            <span className="font-medium underline underline-offset-2">₹500</span>
+                            <div className="flex justify-between py-2 border-t">
+                                <span>Total ({currency})</span>
+                                <span className="font-medium underline underline-offset-2">
+                                    {formatCurrency({
+                                        amount: calculateTotal,
+                                        currency: currency as any,
+                                    })}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div>
-                    <Label>Note</Label>
-                    <Textarea placeholder="Add a note to this invoice here..." />
-                </div>
-
-                <div className="flex items-center justify-end mt-6">
                     <div>
-                        <SubmitButton text="Send Invoice To Customer" />
+                        <Label>Note</Label>
+                        <Textarea
+                            name={fields.note.name}
+                            key={fields.note.key}
+                            defaultValue={fields.note.initialValue}
+                            placeholder="Add a note to this invoice..."
+                        />
                     </div>
-                </div>
+
+                    <div className="flex items-center justify-end mt-6">
+                        <div>
+                            <SubmitButton text="Send Invoice To Customer" />
+                        </div>
+                    </div>
+                </form>
             </CardContent>
         </Card >
     )
 }
+
+export const currencies = [
+    { value: "USD", label: "United States Dollar -- USD" },
+    { value: "EUR", label: "Euro -- EUR" },
+    { value: "GBP", label: "Pound Sterling -- GBP" },
+    { value: "INR", label: "Indian Rupee -- INR" },
+    { value: "JPY", label: "Japanese Yen -- JPY" },
+    { value: "NPR", label: "Nepalese Rupee -- NPR" },
+    { value: "CAD", label: "Canadian Dollar -- CAD" },
+    { value: "AUD", label: "Australian Dollar -- AUD" },
+];
