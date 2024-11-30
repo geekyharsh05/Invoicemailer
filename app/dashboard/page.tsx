@@ -2,6 +2,8 @@ import React from 'react'
 import prisma from '../utils/db'
 import DashBoardBlock from '../components/DashBoardBlock'
 import { requireUser } from '@/hooks/require-user'
+import InvoiceGraph from '../components/InvoiceGraph'
+import { RecentInvoices } from '../components/RecentInvoices'
 
 async function getData(userId: string) {
     const [invoices, openInvoices, paidInvoices] = await Promise.all([
@@ -42,10 +44,13 @@ async function DashboardPage() {
     const data = await getData(session.user?.id as string)
 
     return (
-        <div className="container mx-auto px-4 py-2">
-            <h1 className="text-4xl font-bold mb-8">Dashboard</h1>
+        <>
             <DashBoardBlock data={data} />
-        </div>
+            <div className='grid gap-4 lg:grid-cols-3 md:gap-8'>
+                <InvoiceGraph />
+                <RecentInvoices />
+            </div>
+        </>
     )
 }
 
