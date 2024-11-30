@@ -40,7 +40,7 @@ export default async function DeleteInvoiceRoute({ params }: { params: InvoiceId
                 <CardContent>
                     <Image src={WarningGIF} alt="delete invoice" className="rounded-lg" />
                 </CardContent>
-                <CardFooter className="flex items-end justify-between gap-4">
+                <CardFooter className="flex items-center justify-end gap-4">
                     <Link href={`/dashboard/invoices`} className={buttonVariants({
                         variant: "outline",
                     })}>
