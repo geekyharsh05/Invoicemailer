@@ -4,6 +4,9 @@ import prisma from "../utils/db";
 import { requireUser } from "@/hooks/require-user";
 import { formatCurrency } from "@/hooks/format-currency";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { motion } from "framer-motion";
 
 async function fetchInvoices(userId: string) {
     const data = await prisma.invoice.findMany({
