@@ -58,12 +58,12 @@ async function InvoiceList() {
                             dateStyle: "long",
                         }).format(invoice.createdAt)}
                         </TableCell>
-                        <TableCell className="text-right"><InvoiceActions id={invoice.id} /></TableCell>
+                        <TableCell className="text-right"><InvoiceActions id={invoice.id} status={invoice.status} /></TableCell>
                     </TableRow>
                 ))}
             </TableBody>
         </Table>
     )
 }
-    
+
 export default InvoiceList
