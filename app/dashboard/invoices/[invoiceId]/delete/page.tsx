@@ -8,7 +8,6 @@ import Link from "next/link"
 import { buttonVariants } from "@/components/ui/button"
 import SubmitButton from "@/app/components/SubmitButtons"
 import { deleteInvoice } from "@/lib/actions/actions"
-import { toast } from "sonner"
 
 async function Authorize(invoiceId: string, userId: string) {
     const data = await prisma.invoice.findUnique({
