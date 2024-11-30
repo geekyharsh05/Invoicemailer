@@ -1,51 +1,106 @@
-'use client'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Activity, CreditCard, IndianRupee, Users } from "lucide-react";
+import prisma from "../utils/db";
+import { requireUser } from "@/hooks/require-user";
+import { formatCurrency } from "@/hooks/format-currency";
 
-import { Activity, CreditCard, IndianRupee, Users } from 'lucide-react'
-import React from 'react'
-import { DashboardCard } from './DashboardCard'
+async function getData(userId: string) {
+  const [data, openInvoices, paidinvoices] = await Promise.all([
+    prisma.invoice.findMany({
+      where: {
+        userId: userId,
+      },
+      select: {
+        total: true,
+      },
+    }),
+    prisma.invoice.findMany({
+      where: {
+        userId: userId,
+        status: "PENDING",
+      },
+      select: {
+        id: true,
+      },
+    }),
 
-interface DashboardData {
-  totalRevenue: number
-  totalInvoices: number
-  paidInvoices: number
-  openInvoices: number
+    prisma.invoice.findMany({
+      where: {
+        userId: userId,
+        status: "PAID",
+      },
+      select: {
+        id: true,
+      },
+    }),
+  ]);
+
+  return {
+    data,
+    openInvoices,
+    paidinvoices,
+  };
 }
 
-function DashBoardBlock({ data }: { data: DashboardData }) {
-  const { totalRevenue, totalInvoices, paidInvoices, openInvoices } = data
+export default async function DashboardBlocks() {
+  const session = await requireUser();
+  const { data, openInvoices, paidinvoices } = await getData(session.user?.id as string);
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 md:gap-8">
-      <DashboardCard
-        title="Total Revenue"
-        value={`₹${totalRevenue.toLocaleString()}`}
-        description="Based on the last 30 days"
-        icon={<IndianRupee className="size-4 text-white" />}
-        color="bg-gradient-to-r from-blue-500 to-blue-600"
-      />
-      <DashboardCard
-        title="Total Invoices Issued"
-        value={totalInvoices}
-        description="Total Invoices Issued"
-        icon={<Users className="size-4 text-white" />}
-        color="bg-gradient-to-r from-green-500 to-green-600"
-      />
-      <DashboardCard
-        title="Paid Invoices"
-        value={paidInvoices}
-        description="Total Invoices which have been Paid"
-        icon={<CreditCard className="size-4 text-white" />}
-        color="bg-gradient-to-r from-purple-500 to-purple-600"
-      />
-      <DashboardCard
-        title="Open Invoices"
-        value={openInvoices}
-        description="Total Invoices which are still open"
-        icon={<Activity className="size-4 text-white" />}
-        color="bg-gradient-to-r from-red-500 to-red-600"
-      />
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+          <IndianRupee className="size-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <h2 className="text-2xl font-bold">
+            {formatCurrency({
+              amount: data.reduce((acc, invoice) => acc + invoice.total, 0),
+              currency: "INR",
+            })}
+          </h2>
+          <p className="text-xs text-muted-foreground">Based on total volume</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">
+            Total Invoices Issued
+          </CardTitle>
+          <Users className="size-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <h2 className="text-2xl font-bold">+{data.length}</h2>
+          <p className="text-xs text-muted-foreground">Total Invoices Isued!</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Paid Invoices</CardTitle>
+          <CreditCard className="size-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <h2 className="text-2xl font-bold">+{paidinvoices.length}</h2>
+          <p className="text-xs text-muted-foreground">
+            Total Invoices which have been paid!
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">
+            Pending Invoices
+          </CardTitle>
+          <Activity className="size-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <h2 className="text-2xl font-bold">+{openInvoices.length}</h2>
+          <p className="text-xs text-muted-foreground">
+            Invoices which are currently pending!
+          </p>
+        </CardContent>
+      </Card>
     </div>
-  )
+  );
 }
-
-export default DashBoardBlock
