@@ -1,6 +1,9 @@
-# InvoiceMailer
+<div align="center">
+  <h1>InvoiceMailer</h1>
+  <p>A modern, user-friendly invoicing application that makes creating and sending invoices irresistibly simple.</p>
+</div>
 
-A modern, user-friendly invoicing application that makes creating and sending invoices irresistibly simple.
+<img alt="Landing Page" src="https://github.com/user-attachments/assets/fc4aa8f7-60af-4867-a598-1f6878fc1dbb" width="1440">
 
 ## Features
 
