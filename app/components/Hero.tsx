@@ -3,8 +3,11 @@ import Link from "next/link";
 import HeroImage from "@/public/hero.png";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { auth } from "../utils/auth";
 
-export default function Hero() {
+export default async function Hero() {
+  const session = await auth();
+
   return (
     <section className="relative flex flex-col items-center justify-center py-12 lg:py-20">
       <div className="text-center px-4 sm:px-8">
@@ -25,12 +28,12 @@ export default function Hero() {
         </p>
 
         <div className="mt-7 mb-12">
-          <Link href="/login">
+          <Link href={session?.user ? "/dashboard" : "/login"}>
             <Button
-              className="bg-blue-500 hover:bg-blue-600 font-semibold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="bg-blue-500 hover:bg-blue-600 font-semibold py-2 px-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-4 lg:mt-0"
               size="lg"
             >
-              Get Unlimited Access
+              {session?.user ? "Go To Dashboard" : "Get Unlimited Access"}
             </Button>
           </Link>
         </div>
