@@ -3,7 +3,7 @@
   <p>A modern, user-friendly invoicing application that makes creating and sending invoices irresistibly simple.</p>
 </div>
 
-<img alt="Landing Page" src="https://github.com/user-attachments/assets/fc4aa8f7-60af-4867-a598-1f6878fc1dbb" width="1440">
+<img width="1440" alt="Landing Page" src="https://github.com/user-attachments/assets/1ce9920b-acf1-4834-89db-e7577f4d5455">
 
 ## Features
 
